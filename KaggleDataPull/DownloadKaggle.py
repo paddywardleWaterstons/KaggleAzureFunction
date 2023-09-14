@@ -5,25 +5,24 @@ import json
 import zipfile
 import tempfile
 import logging
+import shutil
 
 def DownloadKaggle(datasetURL:str, endpoint:str):
 
     try:
-        # filepath = os.path.join(local_path, endpoint)
-
-        kaggle_success = kaggle.api.dataset_download_file(datasetURL, file_name=endpoint)
-
-        logging.info(f"Download {kaggle_success}")
+        tmp_dir = tempfile.mkdtemp()
+        tmp_file_path = os.path.join(tmp_dir, endpoint)
+        kaggle.api.dataset_download_file(datasetURL, file_name=endpoint, path=tmp_dir)
 
         if endpoint.endswith('.csv'):
 
-            with zipfile.ZipFile(endpoint+".zip", 'r') as z:
+            with zipfile.ZipFile(tmp_file_path+".zip", 'r') as z:
                 z.extractall()
 
-            if os.path.exists(endpoint+".zip"):
-                os.remove(endpoint+".zip")
+            # if os.path.exists(tmp_file.name+".zip"):
+            #     os.remove(endpoint+".zip")
 
-            with open(endpoint, 'r', encoding='ISO-8859-1') as file:
+            with open(tmp_file_path, 'r', encoding='ISO-8859-1') as file:
 
                 csv_data = csv.DictReader(file)
 
@@ -37,15 +36,14 @@ def DownloadKaggle(datasetURL:str, endpoint:str):
 
         elif endpoint.endswith('.json'):
 
-            with open(endpoint, 'r') as file:
+            with open(tmp_file_path, 'r') as file:
                 
                 data = json.load(file)
             
             data = json.dumps(data, indent=4)
 
-        if os.path.exists(endpoint):
-            os.remove(endpoint)
-
+        shutil.rmtree(tmp_dir)
+        
         return {"success": True, "data": data}
 
     except Exception as e:
