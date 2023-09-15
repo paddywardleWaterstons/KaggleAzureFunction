@@ -3,11 +3,11 @@ import azure.functions as func
 from .DownloadKaggle import DownloadKaggle
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    
+
     logging.info('Python HTTP trigger function processed a request.')
 
     datasetURL = req.headers.get('datasetURL', 'rsrishav/youtube-trending-video-dataset')
-    endpoint = req.headers.get('endpoint', 'BR_category_id.json')
+    endpoint = req.headers.get('endpoint', 'BR_youtube_trending_data.csv')
 
     logging.info('Read URL parameters.')
 
