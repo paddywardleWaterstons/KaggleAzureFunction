@@ -1,21 +1,28 @@
 import logging
 import azure.functions as func
 from .DownloadKaggle import DownloadKaggle
+from .KaggleAPIClient import KaggleAPIClient
+from .DataProcessor import DataProcessor
+from .OutputBinding import OutputBinding
 
-def main(req: func.HttpRequest) -> func.HttpResponse:
-
-    logging.info('Python HTTP trigger function processed a request.')
+def main(req: func.HttpRequest, outputBlob: func.Out[str]) -> func.HttpResponse:
 
     datasetURL = req.headers.get('datasetURL', 'rsrishav/youtube-trending-video-dataset')
-    endpoint = req.headers.get('endpoint', 'BR_youtube_trending_data.csv')
+    endpoint = req.headers.get('endpoint', 'BR_category_id.json')
+    logging.info("Retrieved API Request Headers.")
 
-    logging.info('Read URL parameters.')
+    kaggleClient = KaggleAPIClient(datasetURL, endpoint)
+    kaggleClient.createTemp()
+    kaggleClient.downloadDataset()
+    logging.info("Pulled Kaggle Data.")
+    
+    dataProc = DataProcessor(endpoint, kaggleClient.tmp_dir)
+    kaggle_data = dataProc.process_data()
+    logging.info("Processed Kaggle Data.")
 
-    result = DownloadKaggle(datasetURL, endpoint)
-
-    logging.info('Read Kaggle Dataset')
-
-    if result['success'] == True:
-        return func.HttpResponse(result['data'], mimetype="application/json", status_code=200)
+    if kaggle_data['success'] == True:
+        outputBinding = OutputBinding(outputBlob)
+        outputBinding.saveInBlob(kaggle_data["data"], endpoint)
+        return func.HttpResponse("Success", status_code=200)
     else:
-        return func.HttpResponse(result['error_message'], status_code=500)
+        return func.HttpResponse(kaggle_data['error_message'], status_code=500)
