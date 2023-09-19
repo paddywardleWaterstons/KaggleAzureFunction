@@ -7,22 +7,30 @@ class KaggleAPIClient():
 
         self.datasetURL = datasetUrl
         self.endpoint = endpoint
-
-    def createTemp(self):
-
-        tmp_dir = tempfile.mkdtemp()
-        self.tmp_dir = tmp_dir
+        self.tmpDir = tempfile.mkdtemp()
 
     def downloadDataset(self):
 
         try:
 
-            success = kaggle.api.dataset_download_file(self.datasetURL, file_name=self.endpoint, path=self.tmp_dir)
+            success = kaggle.api.dataset_download_file(self.datasetURL, file_name=self.endpoint, path=self.tmpDir)
 
         except Exception as e:
 
             return {"success": False, "error_message": str(e)}
         
         return success
+    
+    def getDatasetURL(self):
+
+        return self.datasetURL
+    
+    def getEndpoint(self):
+
+        return self.endpoint
+    
+    def getTmpDir(self):
+        
+        return self.tmpDir
     
 

@@ -5,22 +5,22 @@ import shutil
 
 class DataProcessor:
 
-    def __init__(self, endpoint: str, tmp_dir: str):
+    def __init__(self, endpoint: str, tmpDir: str):
 
         self.endpoint = endpoint
-        self.tmp_dir = tmp_dir
+        self.tmpDir = tmpDir
 
-    def process_data(self):
+    def processData(self):
 
         try:
-            file_path = os.path.join(self.tmp_dir, self.endpoint)
+            file_path = os.path.join(self.tmpDir, self.endpoint)
 
             if self.endpoint.endswith('.csv'):
-                data = self.process_csv(file_path)
+                data = self.processCsv(file_path)
             elif self.endpoint.endswith('.json'):
-                data = self.process_json(file_path)
+                data = self.processJson(file_path)
 
-            shutil.rmtree(self.tmp_dir)
+            shutil.rmtree(self.tmpDir)
 
             return {"success": True, "data": data}
 
@@ -28,10 +28,10 @@ class DataProcessor:
 
             return {"success": False, "error_message": str(e)}
 
-    def process_csv(self, file_path: str):
+    def processCsv(self, file_path: str):
 
         with zipfile.ZipFile(file_path+'.zip', 'r') as z:
-            z.extractall(path=self.tmp_dir)
+            z.extractall(path=self.tmpDir)
 
         if os.path.exists(file_path+'.zip'):
             os.remove(file_path+".zip")
@@ -41,7 +41,7 @@ class DataProcessor:
 
         return data
     
-    def process_json(self, file_path: str):
+    def processJson(self, file_path: str):
 
         with open(file_path, 'r') as file:
                 
@@ -50,3 +50,12 @@ class DataProcessor:
         data = json.dumps(data, indent=4)
 
         return data
+    
+    def getEndpoint(self):
+
+        return self.endpoint
+    
+    def getTmpDir(self):
+
+        return self.tmpDir
+    

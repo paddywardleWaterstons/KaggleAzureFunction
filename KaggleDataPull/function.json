@@ -12,13 +12,6 @@
       ]
     },
     {
-      "name": "outputBlob",
-      "type": "blob",
-      "direction": "out",
-      "path": "youtube/BR_youtube_trending_data.csv",
-      "connection": "AzureWebJobsStorage"
-    },
-    {
       "type": "http",
       "direction": "out",
       "name": "$return"
